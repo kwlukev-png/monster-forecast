@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monster 16oz Single — Sales Forecast</title>
+<style>
+  :root {
+    --navy: #1B2A4A; --mid-blue: #2E5090; --lt-blue: #D6E4F0;
+    --teal: #0F6E56; --lt-teal: #E1F5EE;
+    --amber: #854F0B; --lt-amber: #FAEEDA;
+    --gray-50: #F5F7FA; --gray-100: #E8ECF2; --gray-300: #C0C8D8;
+    --gray-600: #6B7280; --gray-900: #111827;
+    --green: #0F6E56; --red: #A32D2D;
+    --radius: 8px; --radius-lg: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+         background: #F0F2F6; color: var(--gray-900); font-size: 14px; }
+
+  .topbar { background: var(--navy); color: #fff; padding: 0 2rem;
+            height: 56px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .topbar-pill { font-size: 11px; background: rgba(255,255,255,.15); padding: 3px 10px;
+                 border-radius: 20px; font-weight: 500; }
+
+  .layout { display: grid; grid-template-columns: 340px 1fr; gap: 0; min-height: calc(100vh - 56px); }
+  .sidebar { background: #fff; border-right: 1px solid var(--gray-100);
+             padding: 1.5rem 1.25rem; overflow-y: auto; }
+  .main { padding: 1.5rem; overflow-y: auto; }
+
+  .slabel { font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: .06em; color: var(--gray-600); margin-bottom: 8px; margin-top: 20px; }
+  .slabel:first-child { margin-top: 0; }
+
+  .card { background: #fff; border: 1px solid var(--gray-100);
+          border-radius: var(--radius-lg); padding: 1rem 1.1rem;
+          margin-bottom: 12px; box-shadow: var(--shadow); }
+
+  .igrp { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  .igrp label { font-size: 12px; color: var(--gray-600); font-weight: 500; }
+  .igrp input, .igrp select {
+    padding: 7px 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);
+    font-size: 13px; width: 100%; background: #fff; color: var(--gray-900);
+    transition: border-color .15s;
+  }
+  .igrp input:focus, .igrp select:focus { outline: none; border-color: var(--mid-blue); }
+
+  .upload-zone {
+    border: 2px dashed var(--gray-300); border-radius: var(--radius-lg);
+    padding: 1.4rem; text-align: center; cursor: pointer;
+    background: var(--gray-50); transition: all .15s; margin-bottom: 10px;
+  }
+  .upload-zone:hover { border-color: var(--mid-blue); background: #EBF2FC; }
+  .upload-zone.loaded { border-color: var(--teal); background: var(--lt-teal); border-style: solid; }
+  .upload-zone.drag { border-color: var(--mid-blue); background: #EBF2FC; }
+  .upload-icon { font-size: 28px; margin-bottom: 6px; }
+  .upload-text { font-size: 13px; color: var(--gray-600); }
+  .upload-sub { font-size: 11px; color: var(--gray-600); margin-top: 3px; opacity: .7; }
+
+  .status-row { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--gray-600); }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gray-300); flex-shrink: 0; }
+  .status-dot.ok { background: var(--green); }
+  .status-dot.err { background: var(--red); }
+
+  .alert { padding: 8px 10px; border-radius: var(--radius); font-size: 12px; margin-top: 8px; }
+  .alert-err { background: #FCEBEB; color: var(--red); }
+  .alert-ok  { background: var(--lt-teal); color: var(--teal); }
+
+  .promo-add-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .promo-add-row p { font-size: 13px; font-weight: 500; }
+  .add-btn { font-size: 12px; color: var(--mid-blue); background: #EBF2FC;
+             border: 1px solid #B5D4F4; border-radius: var(--radius);
+             padding: 5px 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+  .add-btn:hover { background: var(--lt-blue); }
+
+  .promo-item { background: var(--gray-50); border: 1px solid var(--gray-100);
+                border-radius: var(--radius); padding: .75rem; margin-bottom: 8px; }
+  .promo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .promo-item-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .lift-pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+  .lift-ly   { background: var(--lt-teal); color: var(--teal); }
+  .lift-man  { background: var(--lt-amber); color: var(--amber); }
+  .rm-btn { background: none; border: 1px solid var(--gray-300); border-radius: var(--radius);
+            color: var(--gray-600); cursor: pointer; padding: 3px 7px; font-size: 12px; }
+  .rm-btn:hover { background: #FCEBEB; color: var(--red); border-color: #F09595; }
+
+  .gen-btn { width: 100%; padding: 11px; font-size: 14px; font-weight: 600;
+             background: var(--navy); color: #fff; border: none;
+             border-radius: var(--radius-lg); cursor: pointer; margin-top: 6px;
+             display: flex; align-items: center; justify-content: center; gap: 8px;
+             transition: opacity .15s; }
+  .gen-btn:hover { opacity: .88; }
+  .gen-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .metric { background: #fff; border: 1px solid var(--gray-100);
+            border-radius: var(--radius-lg); padding: .9rem 1rem; box-shadow: var(--shadow); }
+  .metric-label { font-size: 11px; color: var(--gray-600); font-weight: 500; margin-bottom: 4px; }
+  .metric-value { font-size: 22px; font-weight: 600; color: var(--gray-900); }
+  .metric-sub   { font-size: 11px; margin-top: 3px; }
+  .metric-sub.pos { color: var(--green); }
+  .metric-sub.neg { color: var(--red); }
+
+  .section-title { font-size: 15px; font-weight: 600; color: var(--gray-900); margin-bottom: 12px; }
+
+  .chart-wrap { background: #fff; border: 1px solid var(--gray-100);
+                border-radius: var(--radius-lg); padding: 1.1rem; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .bar-mo { font-size: 11px; color: var(--gray-600); width: 28px; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 18px; background: var(--gray-100); border-radius: 3px; overflow: hidden; display: flex; }
+  .bar-ly   { height: 100%; background: #B5D4F4; }
+  .bar-base { height: 100%; background: #2E5090; }
+  .bar-promo{ height: 100%; background: #1D9E75; }
+  .bar-val  { font-size: 11px; color: var(--gray-600); width: 64px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .chart-legend { display: flex; gap: 14px; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--gray-600); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  .table-wrap { background: #fff; border: 1px solid var(--gray-100);
+               border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--navy); color: #fff; padding: 10px 12px;
+             text-align: left; font-size: 11px; text-transform: uppercase;
+             letter-spacing: .05em; font-weight: 600; }
+  thead th.r { text-align: right; }
+  tbody td { padding: 9px 12px; border-bottom: 1px solid var(--gray-100); }
+  tbody td.r { text-align: right; font-variant-numeric: tabular-nums; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) { background: var(--gray-50); }
+  tbody tr:hover { background: #EBF2FC; }
+  tfoot td { background: var(--navy); color: #fff; padding: 10px 12px;
+             font-weight: 600; font-variant-numeric: tabular-nums; }
+  tfoot td.r { text-align: right; }
+  .promo-tag { font-size: 11px; padding: 2px 7px; border-radius: 20px;
+               font-weight: 600; background: var(--lt-teal); color: var(--teal); }
+  .pct-pos { color: var(--green); font-weight: 500; }
+  .pct-neg { color: var(--red); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">
+    📊 Monster 16oz Single — Sales Forecast Tool
+  </div>
+  <span class="topbar-pill">RGM Tool v1.0</span>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="slabel">Step 1 — Last year data</div>
+    <div class="upload-zone" id="uploadZone"
+         onclick="document.getElementById('fileInput').click()"
+         ondragover="event.preventDefault();this.classList.add('drag')"
+         ondragleave="this.classList.remove('drag')"
+         ondrop="handleDrop(event)">
+      <div class="upload-icon">📂</div>
+      <div class="upload-text" id="uzText">Drop your LY Excel file here</div>
+      <div class="upload-sub" id="uzSub">or click to browse · .xlsx or .csv</div>
+    </div>
+    <input type="file" id="fileInput" style="display:none" accept=".xlsx,.xls,.csv" onchange="handleFile(this.files[0])">
+    <div class="status-row">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Using sample data</span>
+    </div>
+    <div id="alertBox"></div>
+
+    <div class="slabel">Step 2 — Configuration</div>
+    <div class="igrp"><label>Retailer</label><input type="text" id="retailer" value="7 Eleven" oninput="render()"></div>
+    <div class="igrp"><label>Forecast year</label><input type="number" id="year" value="2026" oninput="render()"></div>
+    <div class="igrp"><label>Base growth rate (%)</label><input type="number" id="growth" value="5" step="0.1" oninput="render()"></div>
+    <div class="igrp"><label>Prepared by</label><input type="text" id="preparer" value=""></div>
+
+    <div class="slabel">Step 3 — Promo plan</div>
+    <div class="promo-add-row">
+      <p>Planned promotions</p>
+      <button class="add-btn" onclick="addPromo()">＋ Add promo</button>
+    </div>
+    <div id="promoRows"></div>
+
+    <button class="gen-btn" id="genBtn" onclick="generate()">
+      ⬇ Generate Excel file
+    </button>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <div class="metrics" id="metrics"></div>
+
+    <div class="chart-wrap">
+      <div class="section-title">Monthly forecast — LY vs TY</div>
+      <div id="chartBars"></div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#B5D4F4"></div>LY actual</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2E5090"></div>TY base</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div>Promo lift</div>
+      </div>
+    </div>
+
+    <div class="section-title">Monthly detail</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th class="r">LY volume</th>
+            <th class="r">Base forecast</th>
+            <th>Promo</th>
+            <th class="r">TY forecast</th>
+            <th class="r">% vs LY</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+        <tfoot id="tableFoot"></tfoot>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const LY_LIFTS={{ ly_lifts|safe }};
+const PROMO_TYPES=['TPR','Display','BOGO','Feature Ad','Coupon','Shipper','Other (new)'];
+
+const SAMPLE={1:{fv:501736,af:584286},2:{fv:510904,af:556387},3:{fv:613481,af:570698},4:{fv:654845,af:654845},5:{fv:710039,af:710039},6:{fv:753851,af:753851},7:{fv:558666,af:558666},8:{fv:665828,af:665828},9:{fv:588604,af:588604},10:{fv:686701,af:686701},11:{fv:633831,af:633831},12:{fv:520920,af:520920}};
+
+let lyData={...SAMPLE};
+let promos=[]; let pid=0;
+
+function fmt(n){return Math.round(n).toLocaleString();}
+function fmtK(n){return(Math.round(n/100)/10).toFixed(1)+'k';}
+function fmtPct(n){return(n>=0?'+':'')+n.toFixed(1)+'%';}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const f=e.dataTransfer.files[0]; if(f)handleFile(f);
+}
+function handleFile(f){
+  if(!f)return;
+  const fd=new FormData(); fd.append('file',f);
+  fetch('/upload',{method:'POST',body:fd})
+    .then(r=>r.json()).then(d=>{
+      if(d.error){showAlert('err',d.error);setStatus('err','Parse failed');return;}
+      lyData={}; Object.entries(d.data).forEach(([k,v])=>lyData[parseInt(k)]=v);
+      document.getElementById('uploadZone').classList.add('loaded');
+      document.getElementById('uzText').textContent=f.name;
+      document.getElementById('uzSub').textContent=`${d.months} months loaded`;
+      setStatus('ok',`${d.months} months loaded from "${f.name}"`);
+      showAlert('ok',`Loaded ${d.months} months of Monster 16oz Single data.`);
+      render();
+    }).catch(()=>showAlert('err','Upload failed — is the server running?'));
+}
+function setStatus(type,msg){
+  const dot=document.getElementById('statusDot');
+  dot.className='status-dot'+(type==='ok'?' ok':type==='err'?' err':'');
+  document.getElementById('statusText').textContent=msg;
+}
+function showAlert(type,msg){
+  const box=document.getElementById('alertBox');
+  box.innerHTML=`<div class="alert alert-${type}">${msg}</div>`;
+  setTimeout(()=>box.innerHTML='',5000);
+}
+
+function addPromo(type='TPR',month=1,dur=1,manualLift=null){
+  promos.push({id:pid++,type,month,dur,manualLift});
+  renderPromos();render();
+}
+function removePromo(id){promos=promos.filter(p=>p.id!==id);renderPromos();render();}
+function updatePromo(id,field,val){
+  const p=promos.find(p=>p.id===id);if(!p)return;
+  if(field==='manualLift')p.manualLift=val===''?null:parseFloat(val);
+  else if(field==='dur')p.dur=parseInt(val)||1;
+  else if(field==='month')p.month=parseInt(val);
+  else p[field]=val;
+  renderPromos();render();
+}
+
+function renderPromos(){
+  const cont=document.getElementById('promoRows');
+  if(!promos.length){cont.innerHTML='<p style="font-size:12px;color:#6B7280;margin-bottom:8px">No promos added yet.</p>';return;}
+  cont.innerHTML=promos.map(p=>{
+    const lyLift=LY_LIFTS[p.type]??null; const isNew=lyLift===null;
+    const liftHTML=isNew
+      ?`<div class="igrp" style="margin:0"><label>Lift %</label><input type="number" step="0.1" placeholder="e.g. 20" value="${p.manualLift??''}" oninput="updatePromo(${p.id},'manualLift',this.value)" style="border-color:#FAC775"></div>`
+      :`<div style="padding-top:18px"><span class="lift-pill lift-ly">LY: +${Math.round(lyLift*100)}%</span></div>`;
+    return `<div class="promo-item">
+      <div class="promo-grid">
+        <div class="igrp" style="margin:0"><label>Type</label>
+          <select oninput="updatePromo(${p.id},'type',this.value)">${PROMO_TYPES.map(t=>`<option${t===p.type?' selected':''}>${t}</option>`).join('')}</select></div>
+        <div class="igrp" style="margin:0"><label>Month</label>
+          <select oninput="updatePromo(${p.id},'month',this.value)">${MONTHS.map((m,i)=>`<option value="${i+1}"${i+1===p.month?' selected':''}>${m}</option>`).join('')}</select></div>
+        <div class="igrp" style="margin:0"><label>Weeks</label>
+          <input type="number" min="1" max="4" value="${p.dur}" oninput="updatePromo(${p.id},'dur',this.value)"></div>
+        ${liftHTML}
+      </div>
+      <div class="promo-item-footer">
+        ${lyLift!==null?`<span class="lift-pill lift-ly">Lift from LY data</span>`:`<span class="lift-pill lift-man">Manual lift entry</span>`}
+        <button class="rm-btn" onclick="removePromo(${p.id})">✕ Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildPromoMap(){
+  const map={};
+  promos.forEach(p=>{
+    const lyLift=LY_LIFTS[p.type]??null;
+    const lift=lyLift!==null?lyLift:(p.manualLift!=null?p.manualLift/100:0);
+    const moSpan=Math.min(Math.ceil(p.dur/4)+1,3);
+    for(let m=p.month;m<p.month+moSpan&&m<=12;m++){
+      if(!map[m]||lift>map[m].lift)map[m]={lift,type:p.type,source:lyLift!==null?'LY':'Manual'};
+    }
+  });
+  return map;
+}
+
+function render(){
+  const gr=parseFloat(document.getElementById('growth').value||5)/100;
+  const pm=buildPromoMap();
+  let totalLY=0,totalBase=0,totalFinal=0,totalPromo=0,promoMo=0;
+  const allFinals=Object.keys(lyData).map(m=>{
+    const base=Math.round(lyData[m].fv*(1+gr));
+    const p=pm[m]; return p?Math.round(base*(1+p.lift)):base;
+  });
+  const maxVal=Math.max(...allFinals,1);
+
+  const chartHTML=MONTHS.map((mo,i)=>{
+    const m=i+1; const rec=lyData[m]||{fv:0,af:0};
+    const ly=rec.fv; const base=Math.round(ly*(1+gr));
+    const p=pm[m]; const final=p?Math.round(base*(1+p.lift)):base;
+    const liftAmt=final-base;
+    totalLY+=ly;totalBase+=base;totalFinal+=final;totalPromo+=liftAmt;
+    if(p)promoMo++;
+    const lyW=Math.round((ly/maxVal)*100);
+    const baseW=Math.round((base/maxVal)*100);
+    const promoW=Math.round((liftAmt/maxVal)*100);
+    return `<div class="bar-row">
+      <span class="bar-mo">${mo}</span>
+      <div class="bar-track">
+        <div class="bar-ly" style="width:${lyW}%;opacity:.65"></div>
+        <div class="bar-base" style="width:${Math.max(0,baseW-lyW)}%"></div>
+        <div class="bar-promo" style="width:${promoW}%"></div>
+      </div>
+      <span class="bar-val">${fmtK(final)}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('chartBars').innerHTML=chartHTML;
+
+  const grTotal=(((totalFinal/Math.max(totalLY,1))-1)*100);
+  document.getElementById('metrics').innerHTML=`
+    <div class="metric"><div class="metric-label">LY total volume</div><div class="metric-value">${fmt(totalLY)}</div><div class="metric-sub" style="color:#6B7280">12 months</div></div>
+    <div class="metric"><div class="metric-label">Base forecast</div><div class="metric-value">${fmt(totalBase)}</div><div class="metric-sub pos">+${(gr*100).toFixed(1)}% base growth</div></div>
+    <div class="metric"><div class="metric-label">Promo lift</div><div class="metric-value">${fmt(totalPromo)}</div><div class="metric-sub pos">${promoMo} promo month${promoMo!==1?'s':''}</div></div>
+    <div class="metric"><div class="metric-label">TY forecast</div><div class="metric-value">${fmt(totalFinal)}</div><div class="metric-sub ${grTotal>=0?'pos':'neg'}">${fmtPct(grTotal)} vs LY</div></div>
+    <div class="metric"><div class="metric-label">$ vs LY</div><div class="metric-value">${fmt(totalFinal-totalLY)}</div><div class="metric-sub pos">incremental</div></div>
+    <div class="metric"><div class="metric-label">Promo months</div><div class="metric-value">${promoMo}</div><div class="metric-sub" style="color:#6B7280">of 12 planned</div></div>`;
+
+  const tbody=document.getElementById('tableBody');
+  const tfoot=document.getElementById('tableFoot');
+  tbody.innerHTML=MONTHS.map((mo,i)=>{
+    const m=i+1; const rec=lyData[m]||{fv:0,af:0};
+    const ly=rec.fv; const base=Math.round(ly*(1+gr));
+    const p=pm[m]; const final=p?Math.round(base*(1+p.lift)):base;
+    const pct=(((final/Math.max(ly,1))-1)*100);
+    return `<tr>
+      <td style="font-weight:600">${mo}</td>
+      <td class="r">${fmt(ly)}</td>
+      <td class="r">${fmt(base)}</td>
+      <td>${p?`<span class="promo-tag">${p.type} +${Math.round(p.lift*100)}%</span>`:'<span style="color:#9CA3AF">—</span>'}</td>
+      <td class="r" style="font-weight:600;color:${p?'#0F6E56':'#1B2A4A'}">${fmt(final)}</td>
+      <td class="r ${pct>=0?'pct-pos':'pct-neg'}">${fmtPct(pct)}</td>
+    </tr>`;
+  }).join('');
+  tfoot.innerHTML=`<tr>
+    <td>Total</td>
+    <td class="r">${fmt(totalLY)}</td>
+    <td class="r">${fmt(totalBase)}</td>
+    <td></td>
+    <td class="r">${fmt(totalFinal)}</td>
+    <td class="r">${fmtPct(grTotal)}</td>
+  </tr>`;
+}
+
+function generate(){
+  const btn=document.getElementById('genBtn');
+  btn.disabled=true; btn.textContent='Generating...';
+  const config={
+    retailer:document.getElementById('retailer').value,
+    year:document.getElementById('year').value,
+    growth:document.getElementById('growth').value,
+    preparer:document.getElementById('preparer').value,
+    ly_data:lyData,
+    promos:promos.map(p=>({...p}))
+  };
+  fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(config)})
+    .then(r=>r.blob()).then(blob=>{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url;
+      a.download=`${config.retailer.replace(/\s+/g,'_')}_Monster16oz_${config.year}.xlsx`;
+      a.click(); URL.revokeObjectURL(url);
+      btn.disabled=false; btn.textContent='⬇ Generate Excel file';
+    }).catch(()=>{btn.disabled=false;btn.textContent='⬇ Generate Excel file';});
+}
+
+render();
+</script>
+</body>
+</html>
